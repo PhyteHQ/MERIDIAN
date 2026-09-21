@@ -66,14 +66,18 @@ export default function Home() {
     try {
       let next: Snapshot;
       try {
-        const response = await fetch('https://darkstat.dd84ai.com/api/pobs', { signal: AbortSignal.any([controller.signal, AbortSignal.timeout(12_000)]), cache: 'no-store' });
+        const response = await fetch('https://darkstat.dd84ai.com/api/pobs', { method: 'POST', headers: { Accept: 'application/json' }, signal: AbortSignal.any([controller.signal, AbortSignal.timeout(18_000)]), cache: 'no-store' });
         if (!response.ok) throw new Error('Unavailable');
         next = parseSnapshot(await response.json());
       } catch {
-        if (controller.signal.aborted) throw new Error('Cancelled');
-        const response = await fetch('/api/stocks', { signal: controller.signal, cache: 'no-store' });
-        if (!response.ok) throw new Error('Unavailable');
-        next = await response.json();
+        if (process.env.NEXT_PUBLIC_GITHUB_PAGES === 'true') {
+          throw new Error('Feed unavailable');
+        } else {
+          if (controller.signal.aborted) throw new Error('Cancelled');
+          const response = await fetch('/api/stocks', { signal: controller.signal, cache: 'no-store' });
+          if (!response.ok) throw new Error('Unavailable');
+          next = await response.json();
+        }
       }
       if (!Array.isArray(next.bases) || !Number.isFinite(Date.parse(next.fetchedAt))) throw new Error('Invalid response');
       if (mounted.current && request.current === controller) { setSnapshot(next); setError(false); setNow(Date.now()); }

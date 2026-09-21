@@ -1,37 +1,50 @@
 # MERIDIAN
 
-POB command dashboard for Anchorage (Omicron Delta) and Vemork (Pennsylvania).
+Schwarz-gelbes POB-Dashboard für **Anchorage** (Omicron Delta) und **Vemork** (Pennsylvania), veröffentlicht über GitHub Pages wie DTR.
 
-## Product
+Geplante Adresse nach der einmaligen Pages-Aktivierung: **https://phytehq.github.io/MERIDIAN/**
 
-- Combined overview and independent POB tabs.
-- Tracks Food, Basic Alloy and Consumer Goods. Food maps to the feed's Food Rations entry, with Food as an alias.
-- Reads the same public Darkstat POB feed as DTR. Refreshes every five minutes while visible, on returning to the page, or on request.
-- Uses a direct browser request with a same-origin Worker fallback. There are no credentials or write operations against Darkstat.
-- Missing values remain unknown. A total requires both bases to report the commodity; zero is a valid stock value.
-- Last successfully received data stays visible during a failed refresh and is marked stale.
-- Feed-provided maximum stock and base buy/sell prices appear in the POB detail view.
-- Desktop and compact mobile layouts use the same data. URL hashes retain the selected POB.
+## GitHub Pages
 
-## Base identity
+Die fertige Webseite liegt direkt im Repository: `index.html`, `assets/`, `favicon.svg` und `.nojekyll`. GitHub braucht dafür keinen Server, keine Zugangsdaten und keinen zusätzlichen Build.
 
-The upstream feed reports **Citadel Anchorage** in Omicron Delta (`citadel_anchorage`) and **Vemork Station** in Pennsylvania (`vemork_station`). Matching prefers those verified identifiers and checks the system. The existing `#vermok` URL is retained for compatibility. Ambiguous or wrong-system matches remain unknown.
+Einmalig unter **Settings → Pages** einstellen:
 
-## Source
+- Source: **Deploy from a branch**
+- Branch: **main**
+- Folder: **/ (root)**
+- **Save**
 
-`lib/meridian.ts` defines the bases, commodities and parser. `app/api/stocks/route.ts` is the fixed-source HTTP fallback. `app/page.tsx` and `app/globals.css` implement the interface. No inventory data is fabricated or bundled with the site.
+Danach veröffentlicht GitHub Änderungen an den fertigen Dateien automatisch.
 
-Use the existing pnpm lockfile and the Sites build/publish workflow. The site's persistent identity is in `.openai/hosting.json`.
+## Funktionen
 
-## Development
+- Gesamtübersicht und einzelne POB-Ansichten.
+- Food, Basic Alloy und Consumer Goods; Food entspricht dem Feed-Eintrag Food Rations (Alias: Food).
+- Direkter Abruf des öffentlichen Darkstat-POB-Feeds per POST, wie bei DTR. Kein eigener API-Server erforderlich.
+- Automatische Aktualisierung alle fünf Minuten bei sichtbarer Seite, beim Zurückkehren und per Schaltfläche.
+- Fehlende Werte bleiben unbekannt. Eine Gesamtsumme wird nur angezeigt, wenn beide Basen einen Bestand melden. Null ist ein gültiger Bestand.
+- Bei Abruffehlern bleibt der letzte bekannte Stand sichtbar und wird als veraltet markiert.
+- Bestandslimits sowie An- und Verkaufspreise aus dem Feed.
+- Desktop- und Mobilansicht; die gewählte POB bleibt im URL-Hash erhalten.
 
-Requires Node.js 22.13 or newer and the pnpm version declared in `package.json`.
+## Basen
+
+Der Feed meldet **Citadel Anchorage** (`citadel_anchorage`) in Omicron Delta und **Vemork Station** (`vemork_station`) in Pennsylvania. Die Zuordnung bevorzugt diese Kennungen und prüft das System. Der frühere Hash `#vermok` bleibt kompatibel. Mehrdeutige oder systemfremde Treffer werden nicht übernommen.
+
+## Entwicklung
+
+Node.js ab 22.13 und die in `package.json` festgelegte pnpm-Version verwenden.
 
 ```sh
 pnpm install --frozen-lockfile
-pnpm dev
-pnpm build
+pnpm dev:pages
+pnpm build:pages
 node --experimental-strip-types --test tests/stock-parser.test.mjs
 ```
 
-The design uses black and yellow. No club logos or official club affiliation are included.
+Nach Änderungen `pnpm build:pages` ausführen und die aktualisierten Dateien im Repository-Hauptverzeichnis mit committen. `pages/` enthält den statischen Einstieg, `app/page.tsx` und `app/globals.css` die gemeinsame Oberfläche, `lib/meridian.ts` die Datenzuordnung. Der Build verwendet relative Asset-Pfade und funktioniert unter `/MERIDIAN/`.
+
+Der ursprüngliche Sites/Vinext-Build (`pnpm dev`, `pnpm build`, `.openai/hosting.json`) bleibt für die bereits bestehende Veröffentlichung erhalten. Der GitHub-Pages-Build bindet weder diesen Server noch `/api/stocks` ein.
+
+Keine erfundenen Bestände, Zugangsdaten, Vereinslogos oder offizielle Vereinszugehörigkeit.
